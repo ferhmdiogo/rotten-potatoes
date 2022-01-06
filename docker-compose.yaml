@@ -1,0 +1,38 @@
+version: '3.8'
+
+volumes:
+  mongo_vol:
+
+networks:
+  potatoes_net:
+    driver: bridge
+
+services:
+  potatoes-app:
+    image: rotten/potatoes-app:v1
+    ports:
+      - 5000:5000
+    networks:
+      - potatoes_net
+    depends_on: # Primeiro vai criar o container mongo
+      - mongodb
+    environment:
+      MONGODB_DB: admin
+      MONGODB_HOST: mongodb # Should be the name of the service/container that is running mongo
+      MONGODB_PORT: 27017
+      MONGODB_USERNAME: mongouser
+      MONGODB_PASSWORD: mongopwd
+    volumes:
+      - mongo_vol:/data/db
+
+  mongodb:
+    image: mongo:4.4.3
+    ports:
+      - 27017:27017
+    networks:
+      - potatoes_net
+    volumes:
+      - mongo_vol:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongouser
+      MONGO_INITDB_ROOT_PASSWORD: mongopwd
